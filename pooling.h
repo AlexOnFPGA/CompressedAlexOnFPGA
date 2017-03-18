@@ -4,7 +4,7 @@
 //  cnn_2
 //
 //  Created by tqy on 3/11/17.
-//  Copyright ï¿½ 2017 tqy. All rights reserved.
+//  Copyright © 2017 tqy. All rights reserved.
 //
 #ifndef __POOLING_H__
 #define __POOLING_H__
@@ -24,21 +24,21 @@ public:
 #pragma HLS INTERFACE s_axilite port=return bundle=control
     	TYPE_T out[N][OUT_ROW][OUT_COL];
 #pragma HLS ARRAY_RESHAPE variable=out complete dim=1
-        
         for (int row = 0; row < OUT_ROW; row++)
         {
             for (int col = 0; col < OUT_COL; col++)
                 {
-        #pragma HLS INLINE OFF
+#pragma HLS INLINE OFF
+#pragma HLS PIPELINE
                     for (int k = 0; k < N; k++)
                     {
-        #pragma HLS UNROLL
+#pragma HLS UNROLL
                     TYPE_T max = data[k][row*POOL_S][col * POOL_S];
                     for (int i = 0; i < POOL_ROW; i++)
                     {
                         for (int j = 0; j < POOL_COL; j++)
                         {
-        #pragma HLS pipeline
+
                             TYPE_T v = data[k][row*POOL_S + i][col * POOL_S + j];
                             if (v > max)
                                 max = v;
