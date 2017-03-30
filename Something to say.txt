@@ -1,0 +1,7 @@
+这里把五个卷积层分开了，每个应该对应包含conv relu pooling（如果有的话）
+然后在该设计中，Tr=R, Tc=C,
+通用的Tm=32， Tn=16 （除了第一次卷积）（现在代码中conv4的Tn=24，这个可改）
+每一层都是会有从ddr的输入：feature map input, weight,以及输出到ddr：feature map output
+
+我之前尝试过吧第一第二层连起来，问题是LUT的使用量爆了。。。。
+
