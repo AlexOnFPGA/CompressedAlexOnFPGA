@@ -19,4 +19,5 @@ conv_axi_out 的conv_out是axi输出 （故内含conv_out的local buffer-fm_out�
 
 关于padding
 我的fm_in的大小可以认为是已经是加完padding之后的结果，即[Tn][R_IN+2*P][C_IN+2*P]。我的设想是，软件做好padding，再送到硬件去加速。这里，我想过了，如果padding=1， kernel=5，则并不是简单地kernel中的一个值和所有的fm_in相乘，加到对应的位置。会出现有些像素点不需要和某个kernel的值相乘的情况。例如：k[4][4]（kernel第五行第五列）不用和fm_in[0][0]相乘， 因为卷积计算中他们算不到一起去。感觉判断太复杂，于是我就直接改变输入了。
+
 暂时想到要解释的就这些。
