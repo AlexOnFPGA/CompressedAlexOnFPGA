@@ -1,7 +1,23 @@
-这里把五个卷积层分开了，每个应该对应包含conv relu pooling（如果有的话）
-然后在该设计中，Tr=R, Tc=C,
-通用的Tm=32， Tn=16 （除了第一次卷积）（现在代码中conv4的Tn=24，这个可改）
-每一层都是会有从ddr的输入：feature map input, weight,以及输出到ddr：feature map output
+在最外面的
+“convolution.h”
+“pooling.h”
+就是可以供conv2(conv+relu+pooling), conv3(conv+relu), conv4(conv+relu), conv5(conv+relu+pooling)使用的模板函数代码
 
-我之前尝试过吧第一第二层连起来，问题是LUT的使用量爆了。。。。
+“top.cpp”中演示了使用方法
+（conv3经过测试可综合，conv2综合的时候发现已经超过我虚拟机能跑的了，一直有类似内存不足的问题，所以没跑成功）
 
+关于“convolution.h”
+里面有两个模板函数：
+conv_bram_out（主要用于后续有pooling）
+conv_axi_out
+relu的部分都统一放在convlution.h中 （因为每个conv之后一定有relu）
+这两个函数的区别主要在于：
+1. pragma HLS INTERFACE 不同
+conv_bram_out 的fm_out是bram输出，因为pooling要用这个中间结果
+conv_axi_out 的conv_out是axi输出 （故内含conv_out的local buffer-fm_out）
+2. 考虑到有pooling的层消耗的资源更多，所以对conv_bram_outimg_in也进行了tile, local_buf:fm_in大小为[Tn][R_IN+2*P][C_IN+2*P]
+
+关于padding
+我的fm_in的大小可以认为是已经是加完padding之后的结果，即[Tn][R_IN+2*P][C_IN+2*P]。我的设想是，软件做好padding，再送到硬件去加速。这里，我想过了，如果padding=1， kernel=5，则并不是简单地kernel中的一个值和所有的fm_in相乘，加到对应的位置。会出现有些像素点不需要和某个kernel的值相乘的情况。例如：k[4][4]（kernel第五行第五列）不用和fm_in[0][0]相乘， 因为卷积计算中他们算不到一起去。
+
+暂时想到要解释的就这些。
